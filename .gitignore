@@ -38,3 +38,6 @@ node_modules/
 
 # CDK output
 cdk.out/
+
+# Build artifacts
+/server/tmp/
