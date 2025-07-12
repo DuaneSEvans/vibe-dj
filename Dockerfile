@@ -10,8 +10,8 @@ RUN go mod download
 
 COPY server/. .
 
-# Build the Go app
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main .
+# Build the Go app. Choose amd64 to run on farget linux boxes
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -o main .
 
 # Step 2
 FROM alpine:latest

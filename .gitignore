@@ -32,3 +32,9 @@ go.work.sum
 # .vscode/
 
 TODO.md
+
+# Dependencies
+node_modules/
+
+# CDK output
+cdk.out/
