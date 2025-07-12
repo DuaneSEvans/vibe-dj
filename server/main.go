@@ -8,8 +8,7 @@ import (
 
 func main() {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		fmt.Fprintf(w, "<span style='color:red;'>The AI Vibe DJ is listening...</span>")
+		fmt.Fprintf(w, "The AI Vibe DJ is listening...")
 	})
 
 	log.Println("Server starting on port 8080...")
