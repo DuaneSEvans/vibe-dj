@@ -41,3 +41,7 @@ cdk.out/
 
 # Build artifacts
 /server/tmp/
+
+# Local Ollama
+ollama.log
+test.png
