@@ -22,13 +22,8 @@ func main() {
 	var llmClient LLMClient
 	var spotifyClient *SpotifyClient
 
-	if os.Getenv("ENV") == "production" {
-		log.Println("Running in production mode, using Replicate client")
-		llmClient = NewReplicateClient(os.Getenv("REPLICATE_API_TOKEN"))
-	} else {
-		log.Println("Running in dev mode, using Ollama client")
-		llmClient = NewOllamaClient(os.Getenv("LLM_URL"))
-	}
+	log.Println("Using Replicate client")
+	llmClient = NewReplicateClient(os.Getenv("REPLICATE_API_TOKEN"))
 
 	spotifyClientID := os.Getenv("SPOTIFY_CLIENT_ID")
 	spotifyClientSecret := os.Getenv("SPOTIFY_CLIENT_SECRET")
