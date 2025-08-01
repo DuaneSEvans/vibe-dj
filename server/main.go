@@ -1,12 +1,14 @@
 package main
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/joho/godotenv"
 )
@@ -18,6 +20,7 @@ func main() {
 	}
 
 	var llmClient LLMClient
+	var spotifyClient *SpotifyClient
 
 	if os.Getenv("ENV") == "production" {
 		log.Println("Running in production mode, using Replicate client")
@@ -27,7 +30,22 @@ func main() {
 		llmClient = NewOllamaClient(os.Getenv("LLM_URL"))
 	}
 
-	// Route handlers
+	spotifyClientID := os.Getenv("SPOTIFY_CLIENT_ID")
+	spotifyClientSecret := os.Getenv("SPOTIFY_CLIENT_SECRET")
+	if spotifyClientID == "" || spotifyClientSecret == "" {
+		log.Println("WARNING: SPOTIFY_CLIENT_ID or SPOTIFY_CLIENT_SECRET not set. Spotify API calls will fail.")
+	}
+	spotifyClient = NewSpotifyClient(spotifyClientID, spotifyClientSecret)
+
+	// Fetch genre seeds once on startup
+	log.Println("Fetching Spotify genre seeds...")
+	availableGenres, err := spotifyClient.getAvailableGenreSeeds(context.Background())
+	if err != nil {
+		log.Fatalf("FATAL: could not fetch spotify genre seeds on startup: %v", err)
+	}
+	log.Printf("Successfully fetched %d Spotify genre seeds.", len(availableGenres))
+	genreList := strings.Join(availableGenres, ", ")
+
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "The AI Vibe DJ is listening...")
 	})
@@ -38,8 +56,7 @@ func main() {
 			return
 		}
 
-		// Protect server from excessively large requests. 100MB limit.
-		r.Body = http.MaxBytesReader(w, r.Body, 100*1024*1024)
+		r.Body = http.MaxBytesReader(w, r.Body, 10*1024*1024)
 
 		imageData, err := io.ReadAll(r.Body)
 		if err != nil {
@@ -53,8 +70,10 @@ func main() {
 			return
 		}
 
-		// TODO(dse): get prompt from the request and iterate here
-		prompt := "what is the musical vibe of this image?"
+		prompt := fmt.Sprintf(`Analyze the following image and describe its musical vibe. 
+Based on your description, choose up to 5 genres from the following list that best match the vibe.
+Available genres: %s
+Return ONLY a JSON object with two keys: "description" (a string) and "genres" (an array of strings).`, genreList)
 
 		desc, err := llmClient.DescribeImage(r.Context(), imageData, prompt)
 		if err != nil {
@@ -62,7 +81,16 @@ func main() {
 			return
 		}
 
-		fmt.Fprintf(w, "The vibe is: %s", desc)
+		// TODO(dse): get song recommendation from spotify
+		log.Printf("LLM described vibe as: %s", desc)
+		track, err := spotifyClient.GetSongRecommendation(r.Context(), desc)
+		if err != nil {
+			log.Printf("ERROR: failed to get spotify recommendation: %v", err)
+			http.Error(w, "failed to get spotify recommendation", http.StatusInternalServerError)
+			return
+		}
+
+		fmt.Fprintf(w, "The recommended track is: %s by %s", track.Name, track.Artists[0].Name)
 	})
 
 	log.Println("Server starting on port 8080...")
