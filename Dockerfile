@@ -1,5 +1,5 @@
 # Step 1
-FROM golang:1.22-alpine AS builder
+FROM golang:1.26-alpine AS builder
 
 WORKDIR /app
 
@@ -10,7 +10,7 @@ RUN go mod download
 
 COPY server/. .
 
-# Build the Go app. Choose amd64 to run on farget linux boxes
+# Build the Go app. Choose amd64 to run on Fargate Linux boxes
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -o main .
 
 # Step 2
