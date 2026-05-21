@@ -1,0 +1,14 @@
+root = "."
+tmp_dir = "server/tmp"
+
+[build]
+cmd = "go build -o ./server/tmp/main ./server/main.go"
+bin = "./server/tmp/main"
+delay = 1000
+exclude_dir = ["server/tmp", "infra", "node_modules"]
+include_dir = ["server"]
+include_ext = ["go"]
+stop_on_error = true
+
+[log]
+time = true
