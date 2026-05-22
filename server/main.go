@@ -7,11 +7,14 @@ import (
 )
 
 func main() {
+	spotifyClient := NewSpotifyClient()
+
 	http.HandleFunc("/ping", func(writer http.ResponseWriter, request *http.Request) {
 		fmt.Fprintln(writer, "pong")
 	})
 
 	http.HandleFunc("/image-description", func(writer http.ResponseWriter, request *http.Request) {
+		fmt.Println(spotifyClient.ready())
 		fmt.Fprintln(writer, "image description")
 	})
 

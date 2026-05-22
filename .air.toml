@@ -1,8 +1,9 @@
 root = "."
 tmp_dir = "server/tmp"
+env_files = [".env"]
 
 [build]
-cmd = "go build -o ./server/tmp/main ./server/main.go"
+cmd = "go build -o ./server/tmp/main ./server/*.go"
 bin = "./server/tmp/main"
 delay = 1000
 exclude_dir = ["server/tmp", "infra", "node_modules"]
