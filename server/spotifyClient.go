@@ -5,15 +5,15 @@ import (
 	"os"
 )
 
-type Client interface {
+type SpotifyClient interface {
 	ready() bool
 }
 
-type SpotifyClient struct {
+type spotifyClient struct {
 	clientID string
 }
 
-func (SpotifyClient) ready() bool {
+func (spotifyClient) ready() bool {
 	return true
 }
 
@@ -23,5 +23,5 @@ func NewSpotifyClient() SpotifyClient {
 		log.Fatal("missing SPOTIFY_CLIENT_ID")
 	}
 
-	return SpotifyClient{clientID: clientID}
+	return spotifyClient{clientID: clientID}
 }
